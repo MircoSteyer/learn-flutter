@@ -1,2 +1,3 @@
 # learn-flutter
-Repository for all study projects
+
+Different mini-projects are put into different branches to avoid using multiple repositories or submodules.
