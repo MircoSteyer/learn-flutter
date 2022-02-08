@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:udemy_flutter_basics/answer.dart';
-import 'package:udemy_flutter_basics/question.dart';
+import 'package:udemy_flutter_basics/quiz.dart';
 
 void main() => runApp(const MyApp());
 
@@ -12,34 +11,18 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  var _questionPosition = 0;
-/*  final List _questions = [
-    "What is your favorite animal?",
-    "What is your favorite color?",
-  ];*/
+  var _showQuiz = true;
+  var _quizScore = 0;
 
-  static const _questions = [
-    {
-      "questionText": "What is your favorite animal?",
-      "answers": ["Rabbit", "Snake", "Elephant", "Lion"]
-    },
-    {
-      "questionText": "What is your favorite color?",
-      "answers": ["Black", "Red", "Green", "White"]
-    },
-    {
-      "questionText": "What is your favorite dish?",
-      "answers": ["Ramen", "Sushi", "Kebab", "Pizza"]
-    },
-  ];
-
-  void _answerQuestion() {
-    if (_questionPosition < _questions.length - 1) {
-      print("[WARNING] questionindex ${_questionPosition}");
-    }
-
+  void _endQuiz() {
     setState(() {
-      _questionPosition++;
+      _showQuiz = false;
+    });
+  }
+
+  void _getQuizScore(int score) {
+    setState(() {
+      _quizScore = score;
     });
   }
 
@@ -52,16 +35,13 @@ class _MyAppState extends State<MyApp> {
         centerTitle: true,
       ),
       body: Align(
-        alignment: Alignment.center,
-        child: Column(
-          children: [
-            Question(_questions[_questionPosition]["questionText"] as String),
-            ...(_questions[_questionPosition]["answers"] as List<String>)
-                .map((answer) => Answer(_answerQuestion, answer))
-                .toList()
-          ],
-        ),
-      ),
+          alignment: Alignment.center,
+          child: _showQuiz
+              ? Quiz(
+                  onQuizEnd: _endQuiz,
+                  sendQuizScore: _getQuizScore,
+                )
+              : Text("Quiz ended. Score: $_quizScore")),
     ));
   }
 }
