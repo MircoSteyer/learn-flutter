@@ -8,9 +8,24 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: "Personal Expenses App",
-      home: HomePage(),
-    );
+    return MaterialApp(
+        title: "Personal Expenses",
+        home: const HomePage(),
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          appBarTheme: const AppBarTheme(
+              titleTextStyle: TextStyle(
+                  fontFamily: "OpenSans",
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold)),
+          textTheme: const TextTheme(
+              headline6: TextStyle(
+                  fontFamily: "OpenSans",
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold)),
+          fontFamily: "Quicksand",
+          colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.teal)
+              .copyWith(secondary: const Color.fromRGBO(255, 191, 105, 1)),
+        ));
   }
 }
