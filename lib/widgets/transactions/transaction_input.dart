@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class TransactionInput extends StatefulWidget {
-  final void Function(String, double) onSubmit;
+  final void Function(String, double, DateTime) onSubmit;
 
-  TransactionInput({required this.onSubmit, Key? key}) : super(key: key);
+  const TransactionInput({required this.onSubmit, Key? key}) : super(key: key);
 
   @override
   State<TransactionInput> createState() => _TransactionInputState();
@@ -11,51 +12,85 @@ class TransactionInput extends StatefulWidget {
 
 class _TransactionInputState extends State<TransactionInput> {
   final _titleController = TextEditingController();
-
   final _amountController = TextEditingController();
+  DateTime? pickedDate;
 
   void submitData() {
     String enteredTitle = _titleController.text;
     double enteredAmount = double.parse(_amountController.text);
 
-    if (enteredTitle.isEmpty || enteredAmount <= 0) return;
+    if (enteredTitle.isEmpty || enteredAmount <= 0 || pickedDate == null) {
+      return;
+    }
 
-    widget.onSubmit(
-        // double.parse will throw an error if no parsable string was entered
-        enteredTitle,
-        enteredAmount);
+    widget.onSubmit(enteredTitle, enteredAmount, pickedDate!);
 
     // close modal sheet
     Navigator.of(context).pop();
   }
 
+  void _presentDatePicker() async {
+    DateTime? newDate = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime.now().subtract(const Duration(days: 365)),
+        lastDate: DateTime.now());
+
+    setState(() {
+      pickedDate = newDate;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 10,
+      elevation: 0,
       child: Container(
         padding: const EdgeInsets.all(10),
-        child: Column(children: [
-          TextField(
-            decoration: const InputDecoration(labelText: "Title"),
-            controller: _titleController,
-            onSubmitted: (_) => submitData(),
+        child: SizedBox(
+          child: SingleChildScrollView(
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  TextField(
+                    decoration: const InputDecoration(labelText: "Title"),
+                    controller: _titleController,
+                    onSubmitted: (_) => submitData(),
+                  ),
+                  // we would need to validate that only numbers can be entered here to avoid an error at double.parse
+                  TextField(
+                    decoration: const InputDecoration(labelText: "Amount"),
+                    controller: _amountController,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    onSubmitted: (_) => submitData(),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(pickedDate is DateTime
+                          ? DateFormat.yMMMd().format(pickedDate!)
+                          : "No Date Chosen."),
+                      TextButton(
+                          onPressed: _presentDatePicker,
+                          child: const Text(
+                            "Choose Date",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ))
+                    ],
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: ElevatedButton(
+                      onPressed: submitData,
+                      child: const Text("Add Transaction"),
+                    ),
+                  ),
+                ]),
           ),
-          // we would need to validate that only numbers can be entered here to avoid an error at double.parse
-          TextField(
-            decoration: const InputDecoration(labelText: "Amount"),
-            controller: _amountController,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            onSubmitted: (_) => submitData(),
-          ),
-          Align(
-            alignment: Alignment.centerRight,
-            child: TextButton(
-              onPressed: submitData,
-              child: const Text("Add Transaction"),
-            ),
-          ),
-        ]),
+        ),
       ),
     );
   }
